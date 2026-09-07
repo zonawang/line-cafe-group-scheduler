@@ -172,6 +172,22 @@ export function createVoteRecordedMessages(
   ];
 }
 
+export function createGroupPlanOwnerRequiredMessages(
+  plan: GroupPlan
+): messagingApi.Message[] {
+  return [
+    {
+      type: 'text',
+      text: [
+        '🙋 只有這次選店投票的發起人可以截止投票。',
+        '',
+        '我已重新顯示目前票數，請原發起人按下方的「截止投票」。'
+      ].join('\n')
+    },
+    ...createGroupPlanMessages(plan)
+  ];
+}
+
 export function createGroupPlanFinalMessage(plan: GroupPlan): messagingApi.TextMessage {
   const counts = countGroupPlanVotes(plan);
   const highest = Math.max(0, ...counts.values());

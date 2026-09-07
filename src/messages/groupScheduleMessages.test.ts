@@ -9,6 +9,7 @@ const {
   createGroupScheduleConfirmedMessage,
   createGroupScheduleMessages,
   createGroupScheduleOptionAddedMessage,
+  createGroupScheduleOwnerRequiredMessages,
   createGroupScheduleReminderMessage,
   createGroupScheduleStartedMessage,
   createGroupScheduleTieMessages,
@@ -66,6 +67,17 @@ test('records a vote and returns refreshed standings', () => {
   assert.equal(messages.length, 2);
   assert.equal(messages[0]?.type, 'text');
   if (messages[0]?.type === 'text') assert.match(messages[0].text, /再次投票會改票/);
+});
+
+test('returns the live time vote and finish action when a non-owner tries to finish', () => {
+  const messages = createGroupScheduleOwnerRequiredMessages(openSchedule);
+  assert.equal(messages.length, 2);
+  assert.equal(messages[0]?.type, 'text');
+  if (messages[0]?.type === 'text') assert.match(messages[0].text, /原發起人/);
+  const voteMessage = messages[1];
+  assert.equal(voteMessage?.type, 'flex');
+  if (voteMessage?.type !== 'flex') return;
+  assert.equal((voteMessage.quickReply?.items ?? [])[2]?.action?.type, 'postback');
 });
 
 test('creates creator tie-break cards', () => {

@@ -161,6 +161,22 @@ export function createGroupScheduleVoteRecordedMessages(
   ];
 }
 
+export function createGroupScheduleOwnerRequiredMessages(
+  schedule: GroupSchedule
+): messagingApi.Message[] {
+  return [
+    {
+      type: 'text',
+      text: [
+        '🙋 只有這次選店投票的原發起人可以截止時間投票。',
+        '',
+        '我已重新顯示目前票數，請原發起人按下方的「截止時間投票」。'
+      ].join('\n')
+    },
+    ...createGroupScheduleMessages(schedule)
+  ];
+}
+
 export function createGroupScheduleTieMessages(
   schedule: GroupSchedule
 ): messagingApi.Message[] {

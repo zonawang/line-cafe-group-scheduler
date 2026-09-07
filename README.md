@@ -135,7 +135,7 @@ npm run typecheck
 npm test
 ```
 
-目前共有 83 項測試，涵蓋既有 Cafe Bot 與新增的時間 action、時區範圍、單一勝者、改票、平手決選、Calendar 卡片、提醒計算及 Cloud Task payload。
+目前共有 85 項測試，涵蓋既有 Cafe Bot 與新增的時間 action、時區範圍、單一勝者、改票、平手決選、非發起人截止後的交接流程、Calendar 卡片、提醒計算及 Cloud Task payload。
 
 ## Cloud Run 部署
 

@@ -34,12 +34,14 @@ import {
 import {
   createCandidateAddedMessage,
   createGroupPlanFinalMessage,
+  createGroupPlanOwnerRequiredMessages,
   createVoteRecordedMessages
 } from '../messages/groupPlannerMessages.js';
 import {
   createGroupScheduleConfirmedMessage,
   createGroupScheduleMessages,
   createGroupScheduleOptionAddedMessage,
+  createGroupScheduleOwnerRequiredMessages,
   createGroupScheduleStartedMessage,
   createGroupScheduleTieMessages,
   createGroupScheduleVoteRecordedMessages
@@ -316,6 +318,25 @@ export async function handlePostbackEvent(
         messages: [createGroupScheduleConfirmedMessage(withReminder, true)]
       });
     } catch (error) {
+      if (
+        groupSchedulePostback.action === 'finish'
+        && error instanceof GroupScheduleError
+        && error.code === 'forbidden'
+      ) {
+        try {
+          const schedule = await getGroupSchedule(
+            conversationId,
+            groupSchedulePostback.scheduleId
+          );
+          await lineClient.replyMessage({
+            replyToken: event.replyToken,
+            messages: createGroupScheduleOwnerRequiredMessages(schedule)
+          });
+          return;
+        } catch {
+          // Fall through to the original error when the latest vote cannot be loaded.
+        }
+      }
       await lineClient.replyMessage({
         replyToken: event.replyToken,
         messages: [{ type: 'text', text: errorText(error) }]
@@ -388,6 +409,23 @@ export async function handlePostbackEvent(
         messages: [createGroupPlanFinalMessage(plan)]
       });
     } catch (error) {
+      if (
+        groupPlannerPostback.action === 'finish'
+        && error instanceof GroupPlanError
+        && error.code === 'forbidden'
+      ) {
+        try {
+          const plan = await getGroupPlan(conversationId);
+          if (plan.id !== groupPlannerPostback.planId) throw new GroupPlanError('stale');
+          await lineClient.replyMessage({
+            replyToken: event.replyToken,
+            messages: createGroupPlanOwnerRequiredMessages(plan)
+          });
+          return;
+        } catch {
+          // Fall through to the original error when the latest vote cannot be loaded.
+        }
+      }
       await lineClient.replyMessage({
         replyToken: event.replyToken,
         messages: [{ type: 'text', text: errorText(error) }]
