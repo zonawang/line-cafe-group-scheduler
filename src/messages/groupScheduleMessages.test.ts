@@ -45,9 +45,38 @@ test('starts a schedule with datetime and view actions', () => {
 });
 
 test('confirms an added option and shows the five-option limit', () => {
-  const message = createGroupScheduleOptionAddedMessage(openSchedule.options[0]!, true, 2);
+  const message = createGroupScheduleOptionAddedMessage(
+    openSchedule,
+    openSchedule.options[0]!,
+    true
+  );
   assert.match(message.text, /2\/5/);
-  assert.equal((message.quickReply?.items ?? [])[0]?.action?.type, 'message');
+  assert.deepEqual(
+    (message.quickReply?.items ?? []).map((item) => item.action?.type),
+    ['datetimepicker', 'message']
+  );
+});
+
+test('stops offering more times when all five candidate slots are used', () => {
+  const fullSchedule = {
+    ...openSchedule,
+    options: Array.from({ length: 5 }, (_, index) => ({
+      id: `option_${index + 1}`,
+      scheduledAtMs: future + index * 3_600_000,
+      proposerId: 'user_1',
+      createdAtMs: index + 1
+    }))
+  };
+  const message = createGroupScheduleOptionAddedMessage(
+    fullSchedule,
+    fullSchedule.options[4]!,
+    true
+  );
+  assert.match(message.text, /5\/5/);
+  assert.deepEqual(
+    (message.quickReply?.items ?? []).map((item) => item.action?.type),
+    ['message']
+  );
 });
 
 test('creates vote cards and controls', () => {

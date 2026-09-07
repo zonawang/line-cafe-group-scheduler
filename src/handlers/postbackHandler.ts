@@ -253,9 +253,9 @@ export async function handlePostbackEvent(
         await lineClient.replyMessage({
           replyToken: event.replyToken,
           messages: [createGroupScheduleOptionAddedMessage(
+            result.schedule,
             option,
-            result.created,
-            result.schedule.options.length
+            result.created
           )]
         });
         return;

@@ -46,20 +46,27 @@ export function createGroupScheduleStartedMessage(
 }
 
 export function createGroupScheduleOptionAddedMessage(
+  schedule: GroupSchedule,
   option: GroupScheduleOption,
-  created: boolean,
-  optionCount: number
+  created: boolean
 ): messagingApi.TextMessage {
+  const optionCount = schedule.options.length;
   return {
     type: 'text',
     text: created
       ? `✅ 已加入候選時間：${formatGroupScheduleTime(option.scheduledAtMs)}（${optionCount}/5）`
       : `這個時間已經在候選清單裡：${formatGroupScheduleTime(option.scheduledAtMs)}`,
     quickReply: {
-      items: [{
-        type: 'action',
-        action: { type: 'message', label: '查看並投票', text: '查看群組時間' }
-      }]
+      items: [
+        ...(optionCount < 5 ? [{
+          type: 'action' as const,
+          action: createGroupScheduleDatetimeAction(schedule.id)
+        }] : []),
+        {
+          type: 'action',
+          action: { type: 'message', label: '查看並投票', text: '查看群組時間' }
+        }
+      ]
     }
   };
 }
